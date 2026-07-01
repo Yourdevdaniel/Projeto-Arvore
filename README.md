@@ -205,8 +205,8 @@ mais longo (uma árvore só com a raiz tem altura 0).
 
 ## 📚 Sobre
 
-Projeto feito para a disciplina de **Estruturas de Dados** do **CEULP/ULBRA**, com
-o **professor Fabiano Fagundes**.
+Projeto feito para a disciplina de **Estruturas de Dados** da **CEULP/ULBRA**, do
+**professor Fabiano Fagundes**.
 
 - Finalidade **exclusivamente acadêmica / de estudo**.
 - **Sem fins lucrativos** — sem intenção de venda ou uso comercial.
