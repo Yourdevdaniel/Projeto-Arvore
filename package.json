@@ -1,0 +1,20 @@
+{
+  "name": "visualizador-arvore-bst",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Visualizador passo a passo de Árvore Binária de Busca (BST) em Python — projeto de estudo (Estruturas de Dados, CEULP/ULBRA).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
