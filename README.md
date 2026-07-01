@@ -17,7 +17,7 @@ sendo percorrido** (ao inserir, buscar, percorrer em ordem, etc).
 
 ---
 
-## 💻 Como rodar o projeto 
+## 💻 Como rodar o projeto
 
 Não precisa entender nada de programação. É só seguir os passos na ordem.
 Você vai precisar de um computador com internet.
@@ -219,5 +219,6 @@ o **professor Fabiano Fagundes**.
 
 Que este projeto te ajude a enxergar as árvores de um jeito mais claro.
 Você consegue. 🌳✨
-#   P r o j e t o - A r v o r e  
+#   P r o j e t o - A r v o r e 
+ 
  
