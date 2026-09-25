@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createRoot } from 'react-dom/client'
-import { DEFAULT_CODE, TRACER, layoutTree } from './tracer.js'
+import { DEFAULT_LINEAR_CODES, TRACER, layoutTree } from './tracer.js'
 import './styles.css'
 
 const SPEEDS = [
@@ -9,27 +9,51 @@ const SPEEDS = [
   { label: 'Rápido', ms: 300 },
 ]
 
-// Prompt (oculto do aluno) copiado junto com o código para colar em qualquer IA.
-const HELP_PROMPT = `Você é um professor de Estruturas de Dados ajudando um aluno.
+const STRUCTURES = {
+  tree: { label: 'Arvore', icon: '🌳', code: DEFAULT_LINEAR_CODES.tree, unit: 'nos', file: 'arvore.py', family: 'arvore' },
+  stack_static: { label: 'Pilha estatica', icon: '▤', code: DEFAULT_LINEAR_CODES.stack_static, unit: 'itens', file: 'pilha-estatica.py', family: 'pilha' },
+  stack_dynamic: { label: 'Pilha dinamica', icon: '▥', code: DEFAULT_LINEAR_CODES.stack_dynamic, unit: 'itens', file: 'pilha-dinamica.py', family: 'pilha' },
+  queue_static: { label: 'Fila estatica', icon: '⇥', code: DEFAULT_LINEAR_CODES.queue_static, unit: 'itens', file: 'fila-estatica.py', family: 'fila' },
+  queue_dynamic: { label: 'Fila dinamica', icon: '→', code: DEFAULT_LINEAR_CODES.queue_dynamic, unit: 'itens', file: 'fila-dinamica.py', family: 'fila' },
+  queue_priority: { label: 'Fila prioridade', icon: '★', code: DEFAULT_LINEAR_CODES.queue_priority, unit: 'itens', file: 'fila-prioridade.py', family: 'fila' },
+  list_seq: { label: 'Lista sequencial', icon: '[]', code: DEFAULT_LINEAR_CODES.list_seq, unit: 'itens', file: 'lista-sequencial.py', family: 'lista' },
+  list_dynamic: { label: 'Lista dinamica', icon: '[+]', code: DEFAULT_LINEAR_CODES.list_dynamic, unit: 'itens', file: 'lista-dinamica.py', family: 'lista' },
+  list_singly: { label: 'Lista simples', icon: '→', code: DEFAULT_LINEAR_CODES.list_singly, unit: 'nos', file: 'lista-simples.py', family: 'lista' },
+  list_doubly: { label: 'Lista dupla', icon: '↔', code: DEFAULT_LINEAR_CODES.list_doubly, unit: 'nos', file: 'lista-dupla.py', family: 'lista' },
+  list_circular_singly: { label: 'Circular simples', icon: '↻', code: DEFAULT_LINEAR_CODES.list_circular_singly, unit: 'nos', file: 'lista-circular-simples.py', family: 'lista' },
+  list_circular_doubly: { label: 'Circular dupla', icon: '⟳', code: DEFAULT_LINEAR_CODES.list_circular_doubly, unit: 'nos', file: 'lista-circular-dupla.py', family: 'lista' },
+}
 
-O código Python abaixo roda em um VISUALIZADOR WEB de Árvore Binária de Busca (BST) que executa Python no navegador (Pyodide) e desenha a árvore passo a passo. Ele tem regras importantes:
+function helpPrompt(current) {
+  const base = `Você é um professor de Estruturas de Dados ajudando um aluno.
 
-- NÃO existe terminal interativo: não use input() nem menus com "while True". O código roda de uma vez só, como um script.
-- Chame as operações DIRETO no final do código (criar a árvore, inserir valores, buscar, percorrer em ordem/pré/pós, etc.) usando print() para mostrar resultados.
-- A árvore é reconhecida pelos nomes dos atributos: valor em valor/value/val/key/chave/info; filho esquerdo em esquerda/esq/left; filho direito em direita/dir/right. Também aceita uma classe "wrapper" (ex.: uma classe Tree com atributo .raiz).
-- Use apenas Python puro, sem bibliotecas externas.
+O código Python abaixo roda em um VISUALIZADOR WEB que executa Python no navegador (Pyodide) e desenha a estrutura passo a passo. Regras:
+
+- NÃO existe terminal interativo: não use input() nem menus com "while True".
+- Chame as operações DIRETO no final do código usando print() para mostrar resultados.
+- Use apenas Python puro, sem bibliotecas externas.`
+  const detail = current.family === 'arvore'
+    ? '- Para árvore, use atributos como valor/value/key, esquerda/left e direita/right.'
+    : current.family === 'pilha'
+      ? '- Para pilha, use lista, pilha estática com vetor + topo, ou pilha dinâmica com topo/head e proximo/next/anterior.'
+      : current.family === 'fila'
+        ? '- Para fila, use frente/tras ou prim/ult; fila de prioridade pode usar pares (prioridade, valor).'
+        : '- Para listas, use dados/lista para sequencial ou prim/ult com proximo/anterior para encadeada, dupla e circular.'
+  return `${base}
+${detail}
 
 Sua tarefa:
 1. Diga, de forma simples, qual(is) o(s) erro(s) do código.
-2. Corrija o código para funcionar nesse visualizador (sem input()/menu; com um trecho no final que monta a árvore e chama as operações).
+2. Corrija o código para funcionar nesse visualizador (sem input()/menu; com um trecho no final que monta a estrutura e chama as operações).
 3. Devolva o código corrigido COMPLETO, pronto para copiar e colar.
 
 Código do aluno:`
+}
 
-function HelpButton({ code }) {
+function HelpButton({ code, current }) {
   const [copied, setCopied] = useState(false)
   const copy = async () => {
-    const texto = HELP_PROMPT + '\n\n"""\n' + (code || '') + '\n"""\n'
+    const texto = helpPrompt(current) + '\n\n"""\n' + (code || '') + '\n"""\n'
     try {
       await navigator.clipboard.writeText(texto)
     } catch {
@@ -120,6 +144,72 @@ function TreeView({ snap, identify }) {
   )
 }
 
+function LinearView({ snap, prevSnap, identify, current }) {
+  const linear = snap?.linears?.[0] || snap?.stacks?.[0]
+  if (!linear) return <div className="tree linear-scene"><div className="empty">Nenhuma estrutura ainda...</div></div>
+
+  const items = linear.items || []
+  const prevItems = prevSnap?.linears?.[0]?.items || prevSnap?.stacks?.[0]?.items || []
+  const vertical = current.family === 'pilha'
+  const capacity = Math.max(linear.capacity || items.length, items.length, 1)
+  const refsByIndex = (linear.refs || []).reduce((acc, ref) => {
+    if (ref.index >= 0) acc[ref.index] = [...(acc[ref.index] || []), ref.label]
+    return acc
+  }, {})
+  const entering = items.length > prevItems.length ? items.length - 1 : -1
+  const leaving = prevItems.length > items.length ? prevItems[vertical ? prevItems.length - 1 : 0] : null
+  const slots = vertical ? Array.from({ length: capacity }, (_, i) => capacity - 1 - i) : items.map((_, i) => i)
+  const arrow = linear.doubly ? '↔' : '→'
+
+  const cell = (idx) => {
+    const active = idx < items.length
+    const role = current.family === 'pilha'
+      ? idx === items.length - 1 ? 'topo' : idx === 0 && active ? 'base' : ''
+      : current.family === 'fila'
+        ? idx === 0 && active ? 'frente' : idx === items.length - 1 ? 'tras' : ''
+        : idx === 0 && active ? 'prim' : idx === items.length - 1 ? 'ult' : ''
+    return (
+      <div key={idx} className={'linear-cell' + (active ? ' filled' : '') + (idx === entering ? ' entering' : '') + (role ? ' ' + role : '')}>
+        <span className="linear-index">{idx}</span>
+        <span className="linear-value">{active ? String(items[idx]) : 'vazio'}</span>
+        {identify && <span className="linear-role">{[role, ...(refsByIndex[idx] || [])].filter(Boolean).join(' · ')}</span>}
+      </div>
+    )
+  }
+
+  return (
+    <div className={'tree linear-scene' + (identify ? ' ident' : '')}>
+      <div className={'linear-stage' + (vertical ? ' vertical' : '')}>
+        <div className="linear-head">
+          <b>{linear.label}</b>
+          <span>{linear.kind}{linear.circular ? ' circular' : ''}{linear.doubly ? ' dupla' : ''}</span>
+        </div>
+        <div className={'linear-box' + (vertical ? ' vertical' : '')}>
+          {vertical
+            ? slots.map(cell)
+            : slots.map((idx) => (
+                <React.Fragment key={idx}>
+                  {cell(idx)}
+                  {idx < items.length - 1 && <span className="linear-arrow">{arrow}</span>}
+                </React.Fragment>
+              ))}
+          {!vertical && linear.circular && items.length > 1 && <span className="linear-arrow loop">↺</span>}
+          {leaving != null && <div className="linear-cell filled leaving"><span className="linear-index">sai</span><span className="linear-value">{String(leaving)}</span></div>}
+        </div>
+      </div>
+      {identify && (
+        <div className="legend">
+          <div className="lg-stat">Tipo: <b>{linear.kind}</b></div>
+          <div className="lg-stat">Tamanho: <b>{items.length}</b> {current.unit}</div>
+          {linear.capacity && <div className="lg-stat">Capacidade: <b>{linear.capacity}</b></div>}
+          {(linear.refs || []).map((ref, i) => <div key={i} className="lg-stat">{ref.label}: <b>{ref.index}</b></div>)}
+          <div className="lg-note">{current.family === 'pilha' ? 'push/pop no topo' : current.family === 'fila' ? 'entra atras, sai na frente' : 'setas indicam encadeamento'}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CodePanel({ mode, code, setCode, snap, error, output }) {
   const lines = useMemo(() => code.split('\n'), [code])
   const viewRef = useRef(null)
@@ -171,8 +261,9 @@ function CodePanel({ mode, code, setCode, snap, error, output }) {
 
 function App() {
   const [ready, setReady] = useState(false)
+  const [structure, setStructure] = useState('tree')
   const [mode, setMode] = useState('edit')
-  const [code, setCode] = useState(DEFAULT_CODE)
+  const [codes, setCodes] = useState(() => Object.fromEntries(Object.entries(STRUCTURES).map(([key, item]) => [key, item.code])))
   const [snaps, setSnaps] = useState([])
   const [idx, setIdx] = useState(0)
   const [result, setResult] = useState(null)
@@ -181,6 +272,23 @@ function App() {
   const [speedIdx, setSpeedIdx] = useState(1)
   const [status, setStatus] = useState('Carregando Python (Pyodide)…')
   const pyRef = useRef(null)
+  const current = STRUCTURES[structure]
+  const code = codes[structure]
+  const setCurrentCode = useCallback((value) => {
+    setCodes((prev) => ({ ...prev, [structure]: value }))
+  }, [structure])
+
+  const switchStructure = useCallback((next) => {
+    if (next === structure) return
+    setPlaying(false)
+    setSnaps([])
+    setResult(null)
+    setIdx(0)
+    setIdentify(false)
+    setMode('edit')
+    setStructure(next)
+    setStatus(STRUCTURES[next].label + ': edite o codigo e clique em Rodar.')
+  }, [structure])
 
   useEffect(() => {
     let alive = true
@@ -244,8 +352,8 @@ function App() {
     setIdx(0)
     setIdentify(false)
     setMode('edit')
-    setStatus('Árvore apagada. Pronto para rodar de novo (o código foi mantido).')
-  }, [])
+    setStatus(current.label + ' apagada. Pronto para rodar de novo (o codigo foi mantido).')
+  }, [current.label])
 
   const fileRef = useRef(null)
 
@@ -253,18 +361,18 @@ function App() {
     const blob = new Blob([code], { type: 'text/x-python' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url; a.download = 'arvore.py'; a.click()
+    a.href = url; a.download = current.file; a.click()
     URL.revokeObjectURL(url)
-  }, [code])
+  }, [code, current.file])
 
   const importCode = useCallback(async (e) => {
     const file = e.target.files?.[0]
     e.target.value = '' // permite reimportar o mesmo arquivo
     if (!file) return
-    setCode(await file.text())
+    setCurrentCode(await file.text())
     setResult(null)
     setStatus('Código importado: ' + file.name)
-  }, [])
+  }, [setCurrentCode])
   const go = useCallback((n) => setIdx(() => Math.min(Math.max(n, 0), Math.max(snaps.length - 1, 0))), [snaps.length])
 
   useEffect(() => {
@@ -286,10 +394,14 @@ function App() {
   }, [mode, idx, go])
 
   const snap = mode === 'run' ? snaps[idx] : mode === 'result' ? result?.final : null
+  const prevSnap = mode === 'run' && idx > 0 ? snaps[idx - 1] : null
   const last = idx >= snaps.length - 1
   const errorToShow = result?.error && (result.fatal || mode === 'result' || (mode === 'run' && last)) ? result.error : null
 
-  const changeCode = useCallback((v) => { setCode(v); setResult((r) => (r?.error ? null : r)) }, [])
+  const changeCode = useCallback((v) => { setCurrentCode(v); setResult((r) => (r?.error ? null : r)) }, [setCurrentCode])
+  const finalSize = current.family !== 'arvore'
+    ? (result?.final?.linears?.[0]?.items?.length ?? result?.final?.stacks?.[0]?.items?.length ?? 0)
+    : (result?.final?.nodes?.length ?? 0)
 
   const statusEl = mode === 'run' && snap ? (
     <span className="status">
@@ -300,7 +412,7 @@ function App() {
     </span>
   ) : mode === 'result' ? (
     <span className="status">
-      <b>Resultado final</b> · {result?.final?.nodes.length ?? 0} nós
+      <b>Resultado final</b> · {finalSize} {current.unit}
       {result?.truncated && <span className="e"> · ⚠ laço infinito (parou no limite)</span>}
       {result?.error && <span className="e"> · erro: {result.error}</span>}
     </span>
@@ -309,8 +421,21 @@ function App() {
   return (
     <>
       <div className="toolbar">
-        <h1><span className="em">🌳</span> Árvore Binária de Busca <span className="sub" style={{ color: 'var(--muted)', fontWeight: 400 }}>— passo a passo</span></h1>
-        <HelpButton code={code} />
+        <h1><span className="em">{current.icon}</span> {current.label} <span className="sub" style={{ color: 'var(--muted)', fontWeight: 400 }}>— passo a passo</span></h1>
+        <div className="tabs" role="tablist" aria-label="Estrutura">
+          {Object.entries(STRUCTURES).map(([key, item]) => (
+            <button
+              key={key}
+              className={'tab' + (structure === key ? ' active' : '')}
+              role="tab"
+              aria-selected={structure === key}
+              onClick={() => switchStructure(key)}
+            >
+              <span>{item.icon}</span>{item.label}
+            </button>
+          ))}
+        </div>
+        <HelpButton code={code} current={current} />
         <input ref={fileRef} type="file" accept=".py,.txt,text/plain" style={{ display: 'none' }} onChange={importCode} />
         {mode === 'edit'
           ? <>
@@ -327,7 +452,11 @@ function App() {
       </div>
 
       <div className="body">
-        <div className="pane-tree"><TreeView snap={snap} identify={identify} /></div>
+        <div className="pane-tree">
+          {current.family !== 'arvore'
+            ? <LinearView snap={snap} prevSnap={prevSnap} identify={identify} current={current} />
+            : <TreeView snap={snap} identify={identify} />}
+        </div>
         <CodePanel mode={mode} code={code} setCode={changeCode} snap={snap} error={errorToShow} output={result?.output} />
       </div>
 

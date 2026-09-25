@@ -22,6 +22,18 @@ body {
 }
 .toolbar h1 { font-size:15px; font-weight:600; margin:0; margin-right:auto; letter-spacing:.2px; }
 .toolbar h1 .em { font-size:18px; }
+.tabs {
+  display:flex; flex-wrap:wrap; gap:4px; padding:3px; border:1px solid var(--line);
+  border-radius:12px; background:#171823; max-width:min(820px, 100%);
+}
+.tab {
+  appearance:none; border:0; border-radius:9px; padding:7px 11px;
+  background:transparent; color:var(--muted); font-size:13px; font-weight:600;
+  cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap;
+  transition:background 140ms ease, color 140ms ease, transform 140ms var(--ease-out);
+}
+.tab.active { background:var(--panel2); color:var(--text); }
+.tab:active { transform:scale(0.96); }
 
 .btn {
   appearance:none; border:1px solid var(--line); background:var(--panel2);
@@ -114,6 +126,55 @@ body {
 .tree svg { margin:auto; display:block; }
 .tree .empty { margin:auto; color:var(--dim); font-size:14px; }
 
+.linear-scene { align-items:center; justify-content:center; padding:26px; }
+.linear-stage {
+  width:min(760px, 100%); display:flex; flex-direction:column; gap:12px;
+}
+.linear-stage.vertical { width:min(360px, 100%); }
+.linear-head {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  color:var(--text); font-size:14px;
+}
+.linear-head span { color:var(--muted); font-size:12px; }
+.linear-box {
+  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+  border:1px solid var(--line); background:rgba(18,18,26,.58);
+  border-radius:12px; padding:12px;
+}
+.linear-box.vertical { flex-direction:column; align-items:stretch; }
+.linear-cell {
+  min-height:48px; display:grid; grid-template-columns:42px 1fr auto; align-items:center;
+  gap:10px; min-width:112px; border:1px dashed #363a51; border-radius:10px; padding:8px 11px;
+  color:var(--dim); background:rgba(31,33,48,.48);
+}
+.linear-cell.filled {
+  color:var(--text); border-style:solid; border-color:#4a5682;
+  background:linear-gradient(180deg, #2f3a63, #242a45);
+}
+.linear-cell.entering {
+  animation:linearIn 220ms var(--ease-out) both;
+}
+.linear-cell.leaving {
+  position:absolute; right:28px; bottom:28px; pointer-events:none;
+  border-color:var(--err); animation:linearOut 220ms var(--ease-out) both;
+}
+.linear-cell.topo, .linear-cell.tras, .linear-cell.ult { border-color:var(--accent); box-shadow:0 0 0 1px rgba(255,158,100,.25) inset; }
+.linear-cell.base, .linear-cell.frente, .linear-cell.prim { border-color:#9ece6a; }
+.linear-index { color:var(--dim); font-family:ui-monospace,'Consolas',monospace; font-size:12px; }
+.linear-value { font-family:ui-monospace,'Consolas',monospace; font-size:16px; font-weight:700; text-align:center; }
+.linear-role { color:var(--accent); font-size:11px; font-weight:700; text-transform:uppercase; }
+.linear-arrow { color:var(--muted); font-family:ui-monospace,'Consolas',monospace; font-size:20px; font-weight:700; }
+.linear-arrow.loop { color:var(--accent); }
+
+@keyframes linearIn {
+  from { opacity:0; transform:translateY(-10px); filter:blur(3px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes linearOut {
+  from { opacity:1; transform:translateX(0); }
+  to { opacity:0; transform:translateX(36px); }
+}
+
 .edge { stroke:#3a3f5c; stroke-width:2.5; stroke-linecap:round; animation:edgeIn 260ms var(--ease-out) both; }
 .nodeg .disc { fill:url(#gnode); stroke:#12121a; stroke-width:2.5; transition:transform 200ms var(--ease-out), filter 200ms ease; transform-origin:0 0; }
 .nodeg .lbl { fill:#0d0f18; font-family:ui-monospace,'Consolas',monospace; font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central; }
@@ -178,10 +239,11 @@ body {
   .pane-code { flex:1 1 0; min-height:0; }
   .toolbar h1 { font-size:14px; width:100%; margin-bottom:2px; }
   .toolbar h1 .sub { display:none; }
+  .tabs { order:2; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, .nodeg, .edge { animation:none !important; }
+  *, .nodeg, .edge, .linear-cell { animation:none !important; }
   .nodeg .disc { transition:filter 200ms ease; }
   .btn, .cbtn { transition:background 140ms ease; }
   .nodeg.hl .disc { transform:none; }

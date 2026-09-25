@@ -42,6 +42,332 @@ print("Buscando 40...")
 buscar(raiz, 40)
 `;
 
+export const DEFAULT_STACK_CODE = `class PilhaEstatica:
+    def __init__(self, capacidade):
+        self.dados = [None] * capacidade
+        self.topo = -1
+
+    def push(self, valor):
+        if self.topo == len(self.dados) - 1:
+            print("Pilha cheia")
+            return
+        self.topo += 1
+        self.dados[self.topo] = valor
+        print("push", valor)
+
+    def pop(self):
+        if self.topo == -1:
+            print("Pilha vazia")
+            return None
+        valor = self.dados[self.topo]
+        self.dados[self.topo] = None
+        self.topo -= 1
+        print("pop", valor)
+        return valor
+
+pilha = PilhaEstatica(5)
+pilha.push(10)
+pilha.push(20)
+pilha.push(30)
+pilha.pop()
+pilha.push(40)
+`;
+
+export const DEFAULT_STACK_DYNAMIC_CODE = `class No:
+    def __init__(self, valor):
+        self.valor = valor
+        self.proximo = None
+
+class PilhaDinamica:
+    def __init__(self):
+        self.topo = None
+
+    def push(self, valor):
+        novo = No(valor)
+        novo.proximo = self.topo
+        self.topo = novo
+        print("push", valor)
+
+    def pop(self):
+        if self.topo is None:
+            print("Pilha vazia")
+            return None
+        valor = self.topo.valor
+        self.topo = self.topo.proximo
+        print("pop", valor)
+        return valor
+
+pilha = PilhaDinamica()
+pilha.push(10)
+pilha.push(20)
+pilha.push(30)
+pilha.pop()
+pilha.push(40)
+`;
+
+export const DEFAULT_QUEUE_STATIC_CODE = `class FilaEstatica:
+    def __init__(self, capacidade):
+        self.dados = [None] * capacidade
+        self.frente = 0
+        self.tras = -1
+        self.tamanho = 0
+
+    def enfileirar(self, valor):
+        if self.tamanho == len(self.dados):
+            print("Fila cheia")
+            return
+        self.tras = (self.tras + 1) % len(self.dados)
+        self.dados[self.tras] = valor
+        self.tamanho += 1
+        print("entrou", valor)
+
+    def desenfileirar(self):
+        if self.tamanho == 0:
+            print("Fila vazia")
+            return None
+        valor = self.dados[self.frente]
+        self.dados[self.frente] = None
+        self.frente = (self.frente + 1) % len(self.dados)
+        self.tamanho -= 1
+        print("saiu", valor)
+        return valor
+
+fila = FilaEstatica(5)
+fila.enfileirar(10)
+fila.enfileirar(20)
+fila.enfileirar(30)
+fila.desenfileirar()
+fila.enfileirar(40)
+`;
+
+export const DEFAULT_QUEUE_DYNAMIC_CODE = `class No:
+    def __init__(self, valor):
+        self.valor = valor
+        self.proximo = None
+
+class FilaDinamica:
+    def __init__(self):
+        self.prim = None
+        self.ult = None
+
+    def enfileirar(self, valor):
+        novo = No(valor)
+        if self.ult is None:
+            self.prim = novo
+        else:
+            self.ult.proximo = novo
+        self.ult = novo
+        print("entrou", valor)
+
+    def desenfileirar(self):
+        if self.prim is None:
+            print("Fila vazia")
+            return None
+        valor = self.prim.valor
+        self.prim = self.prim.proximo
+        if self.prim is None:
+            self.ult = None
+        print("saiu", valor)
+        return valor
+
+fila = FilaDinamica()
+fila.enfileirar(10)
+fila.enfileirar(20)
+fila.enfileirar(30)
+fila.desenfileirar()
+fila.enfileirar(40)
+`;
+
+export const DEFAULT_PRIORITY_QUEUE_CODE = `class FilaPrioridade:
+    def __init__(self):
+        self.dados = []
+
+    def enfileirar(self, valor, prioridade):
+        self.dados.append((prioridade, valor))
+        self.dados.sort()
+        print("entrou", valor, "prioridade", prioridade)
+
+    def desenfileirar(self):
+        if not self.dados:
+            print("Fila vazia")
+            return None
+        prioridade, valor = self.dados.pop(0)
+        print("saiu", valor)
+        return valor
+
+fila = FilaPrioridade()
+fila.enfileirar("B", 2)
+fila.enfileirar("A", 1)
+fila.enfileirar("C", 3)
+fila.desenfileirar()
+`;
+
+export const DEFAULT_LIST_SEQ_CODE = `class ListaSequencial:
+    def __init__(self, capacidade):
+        self.dados = [None] * capacidade
+        self.tamanho = 0
+
+    def inserir(self, valor):
+        if self.tamanho == len(self.dados):
+            print("Lista cheia")
+            return
+        self.dados[self.tamanho] = valor
+        self.tamanho += 1
+        print("inseriu", valor)
+
+lista = ListaSequencial(5)
+lista.inserir(10)
+lista.inserir(20)
+lista.inserir(30)
+`;
+
+export const DEFAULT_LIST_DYNAMIC_CODE = `class ListaDinamica:
+    def __init__(self):
+        self.dados = []
+
+    def inserir(self, valor):
+        self.dados.append(valor)
+        print("inseriu", valor)
+
+    def remover(self, valor):
+        if valor in self.dados:
+            self.dados.remove(valor)
+            print("removeu", valor)
+
+lista = ListaDinamica()
+lista.inserir(10)
+lista.inserir(20)
+lista.inserir(30)
+lista.remover(20)
+`;
+
+export const DEFAULT_LIST_SINGLY_CODE = `class No:
+    def __init__(self, valor):
+        self.valor = valor
+        self.proximo = None
+
+class ListaSimples:
+    def __init__(self):
+        self.prim = None
+        self.ult = None
+
+    def inserir(self, valor):
+        novo = No(valor)
+        if self.prim is None:
+            self.prim = novo
+        else:
+            self.ult.proximo = novo
+        self.ult = novo
+        print("inseriu", valor)
+
+lista = ListaSimples()
+lista.inserir(10)
+lista.inserir(20)
+lista.inserir(30)
+`;
+
+export const DEFAULT_LIST_DOUBLY_CODE = `class No:
+    def __init__(self, valor):
+        self.valor = valor
+        self.anterior = None
+        self.proximo = None
+
+class ListaDupla:
+    def __init__(self):
+        self.prim = None
+        self.ult = None
+
+    def inserir(self, valor):
+        novo = No(valor)
+        if self.prim is None:
+            self.prim = novo
+        else:
+            novo.anterior = self.ult
+            self.ult.proximo = novo
+        self.ult = novo
+        print("inseriu", valor)
+
+lista = ListaDupla()
+lista.inserir(10)
+lista.inserir(20)
+lista.inserir(30)
+`;
+
+export const DEFAULT_LIST_CIRC_SINGLY_CODE = `class No:
+    def __init__(self, valor):
+        self.valor = valor
+        self.proximo = None
+
+class ListaCircularSimples:
+    def __init__(self):
+        self.prim = None
+        self.ult = None
+
+    def inserir(self, valor):
+        novo = No(valor)
+        if self.prim is None:
+            self.prim = novo
+            self.ult = novo
+            novo.proximo = novo
+        else:
+            novo.proximo = self.prim
+            self.ult.proximo = novo
+            self.ult = novo
+        print("inseriu", valor)
+
+lista = ListaCircularSimples()
+lista.inserir(10)
+lista.inserir(20)
+lista.inserir(30)
+`;
+
+export const DEFAULT_LIST_CIRC_DOUBLY_CODE = `class No:
+    def __init__(self, valor):
+        self.valor = valor
+        self.anterior = None
+        self.proximo = None
+
+class ListaCircularDupla:
+    def __init__(self):
+        self.prim = None
+        self.ult = None
+
+    def inserir(self, valor):
+        novo = No(valor)
+        if self.prim is None:
+            self.prim = novo
+            self.ult = novo
+            novo.proximo = novo
+            novo.anterior = novo
+        else:
+            novo.anterior = self.ult
+            novo.proximo = self.prim
+            self.ult.proximo = novo
+            self.prim.anterior = novo
+            self.ult = novo
+        print("inseriu", valor)
+
+lista = ListaCircularDupla()
+lista.inserir(10)
+lista.inserir(20)
+lista.inserir(30)
+`;
+
+export const DEFAULT_LINEAR_CODES = {
+  tree: DEFAULT_CODE,
+  stack_static: DEFAULT_STACK_CODE,
+  stack_dynamic: DEFAULT_STACK_DYNAMIC_CODE,
+  queue_static: DEFAULT_QUEUE_STATIC_CODE,
+  queue_dynamic: DEFAULT_QUEUE_DYNAMIC_CODE,
+  queue_priority: DEFAULT_PRIORITY_QUEUE_CODE,
+  list_seq: DEFAULT_LIST_SEQ_CODE,
+  list_dynamic: DEFAULT_LIST_DYNAMIC_CODE,
+  list_singly: DEFAULT_LIST_SINGLY_CODE,
+  list_doubly: DEFAULT_LIST_DOUBLY_CODE,
+  list_circular_singly: DEFAULT_LIST_CIRC_SINGLY_CODE,
+  list_circular_doubly: DEFAULT_LIST_CIRC_DOUBLY_CODE,
+};
+
 // Tracer em Python — usa sys.settrace (stdlib) como "debugger".
 export const TRACER = `
 import sys, json
@@ -49,6 +375,13 @@ import sys, json
 VAL   = ['valor','value','val','key','chave','data','dado','info','item']
 LEFT  = ['esquerda','esq','left','l','filho_esquerdo','filho_esq']
 RIGHT = ['direita','dir','right','r','filho_direito','filho_dir']
+ARRAY_NAMES = ['dados','data','items','itens','valores','vetor','lista','elementos','array']
+TOP_NAMES = ['topo','top']
+FRONT_NAMES = ['frente','front','prim','primeiro','inicio','head','cabeca']
+BACK_NAMES = ['tras','rear','ult','ultimo','fim','tail']
+SIZE_NAMES = ['tamanho','tam','size','qtd','quantidade','n']
+NEXT_NAMES = ['proximo','prox','next','seguinte','abaixo']
+PREV_NAMES = ['anterior','ant','prev']
 
 def _attr(o, names):
     for n in names:
@@ -95,6 +428,109 @@ def _collect(roots):
         stack.append(left); stack.append(right)
     return seen
 
+def _is_stack_node(o):
+    if o is None or isinstance(o, (int,float,str,bool,list,dict,tuple,set,bytes)):
+        return False
+    return _attr(o,VAL) is not None and (_attr(o,NEXT_NAMES) is not None or _attr(o,PREV_NAMES) is not None)
+
+def _active_items(raw, top):
+    items = list(raw)
+    if isinstance(top, int):
+        if top < 0: return []
+        items = items[:top + 1]
+    return [_safe(x) for x in items if x is not None]
+
+def _get_first(d, names):
+    for n in names:
+        if n in d:
+            return n, d[n]
+    return None, None
+
+def _linear_kind(name, v):
+    s = (name + ' ' + type(v).__name__).lower()
+    if 'prioridade' in s or 'priority' in s: return 'fila_prioridade'
+    if 'fila' in s or 'queue' in s: return 'fila'
+    if 'pilha' in s or 'stack' in s: return 'pilha'
+    if 'circular' in s and ('dupla' in s or 'dupl' in s or 'double' in s): return 'lista_circular_dupla'
+    if 'circular' in s: return 'lista_circular'
+    if 'dupla' in s or 'dupl' in s or 'double' in s: return 'lista_dupla'
+    if 'lista' in s or 'list' in s: return 'lista'
+    return 'sequencial'
+
+def _array_items(raw, d):
+    items = list(raw)
+    top_name, top = _get_first(d, TOP_NAMES)
+    front_name, front = _get_first(d, FRONT_NAMES)
+    back_name, back = _get_first(d, BACK_NAMES)
+    size_name, size = _get_first(d, SIZE_NAMES)
+    refs = []
+    if isinstance(top, int):
+        items = [] if top < 0 else items[:top + 1]
+        refs.append({'index': top, 'label': 'self.' + top_name})
+    elif isinstance(front, int) and isinstance(size, int):
+        cap = len(items) or 1
+        items = [items[(front + i) % cap] for i in range(max(size, 0))]
+        refs.append({'index': 0, 'label': 'self.' + front_name})
+        if size > 0 and back_name: refs.append({'index': size - 1, 'label': 'self.' + back_name})
+    elif isinstance(size, int):
+        items = items[:max(size, 0)]
+    else:
+        items = [x for x in items if x is not None]
+    return [_safe(x) for x in items if x is not None], refs
+
+def _linked_items(head):
+    out = []
+    seen = set()
+    cur = head
+    circular = False
+    doubly = False
+    while _is_stack_node(cur) and id(cur) not in seen and len(out) < _MAX_NODES:
+        seen.add(id(cur))
+        va = _attr(cur, VAL)
+        nx = _attr(cur, NEXT_NAMES) or _attr(cur, PREV_NAMES)
+        doubly = doubly or _attr(cur, PREV_NAMES) is not None
+        try:
+            out.append({'id': id(cur), 'value': _safe(getattr(cur, va))})
+            nxt = getattr(cur, nx)
+            if _is_stack_node(nxt) and id(nxt) in seen: circular = True
+            cur = nxt
+        except Exception:
+            break
+    return out, circular, doubly
+
+def _stack_candidates(name, v):
+    if isinstance(v, (list, tuple)):
+        return [{'id': id(v), 'label': name, 'kind': 'sequencial', 'items': _active_items(v, None), 'relation': 'array', 'refs': []}]
+    try:
+        d = vars(v)
+    except Exception:
+        return []
+    kind = _linear_kind(name, v)
+    for an in ARRAY_NAMES:
+        if an in d and isinstance(d[an], (list, tuple)):
+            items, refs = _array_items(d[an], d)
+            return [{'id': id(v), 'label': name, 'kind': kind, 'items': items, 'capacity': len(d[an]), 'relation': 'array', 'refs': refs}]
+    head_name, head = _get_first(d, TOP_NAMES + FRONT_NAMES)
+    back_name, back = _get_first(d, BACK_NAMES)
+    if _is_stack_node(head):
+        items, circular, doubly = _linked_items(head)
+        values = [x['value'] for x in items]
+        if kind == 'pilha':
+            values.reverse()
+            refs = [{'index': len(values) - 1, 'label': 'self.' + head_name}]
+        else:
+            refs = [{'index': 0, 'label': 'self.' + head_name}]
+        if _is_stack_node(back):
+            for i, item in enumerate(items):
+                if item['id'] == id(back):
+                    refs.append({'index': len(values) - 1 - i if kind == 'pilha' else i, 'label': 'self.' + back_name})
+                    break
+        if circular and doubly: kind = 'lista_circular_dupla'
+        elif circular: kind = 'lista_circular'
+        elif doubly and kind == 'lista': kind = 'lista_dupla'
+        return [{'id': id(v), 'label': name, 'kind': kind, 'items': values, 'relation': 'linked', 'circular': circular, 'doubly': doubly, 'refs': refs}]
+    return []
+
 _snaps = []
 
 # Excecao para abortar laco infinito. BaseException para nao ser pega por
@@ -127,6 +563,7 @@ def _capture(frame):
     roots = []
     var_to_node = {}
     highlight = []
+    linear_map = {}
     f = frame
     depth = 0
     while f is not None:
@@ -135,15 +572,22 @@ def _capture(frame):
                 roots.append(node)
                 var_to_node.setdefault(id(node), []).append(label)
                 if depth == 0 and _is_node(v): highlight.append(id(node))
+            for st in _stack_candidates(name, v):
+                if st['items'] or st.get('capacity'): linear_map[st['id']] = st
         f = f.f_back; depth += 1
     for name, v in list(frame.f_globals.items()):
         for label, node in _node_roots(name, v):
             roots.append(node)
             var_to_node.setdefault(id(node), []).append(label)
+        for st in _stack_candidates(name, v):
+            if st['items'] or st.get('capacity'): linear_map[st['id']] = st
     nodes = _collect(roots)
+    linears = list(linear_map.values())
     _snaps.append({
         'line': frame.f_lineno,
         'nodes': list(nodes.values()),
+        'linears': linears,
+        'stacks': linears,
         'highlight': list(set(highlight)),
         'vars': {str(k): _dedup(vs) for k, vs in var_to_node.items()},
         'outlen': sys.stdout.tell(),  # O(1); a saida completa vai uma vez so no final
@@ -195,17 +639,22 @@ def run_user_code(src):
     # estado final: arvore montada no escopo global + saida completa
     final_roots = []
     final_vars = {}
+    final_linears = {}
     try:
         for name, v in list(ns.items()):
             for label, node in _node_roots(name, v):
                 final_roots.append(node)
                 final_vars.setdefault(id(node), []).append(label)
+            for st in _stack_candidates(name, v):
+                if st['items'] or st.get('capacity'): final_linears[st['id']] = st
         final_nodes = list(_collect(final_roots).values())
     except Exception:
         final_nodes = []
     final = {
         'line': -1,
         'nodes': final_nodes,
+        'linears': list(final_linears.values()),
+        'stacks': list(final_linears.values()),
         'highlight': [],
         'vars': {str(k): _dedup(vs) for k, vs in final_vars.items()},
         'outlen': len(full_out),
